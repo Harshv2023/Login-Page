@@ -32,6 +32,7 @@ import {
   deriveRenderOpts,
   ensureGlobalVariants
 } from "@plasmicapp/react-web";
+import TextInput from "../../TextInput"; // plasmic-import: PzuVz6EbQTX_/component
 import Button from "../../Button"; // plasmic-import: 5ABs-wUIauh-/component
 
 import "@plasmicapp/react-web/lib/plasmic.css";
@@ -39,6 +40,7 @@ import "@plasmicapp/react-web/lib/plasmic.css";
 import projectcss from "./plasmic_cms_starter.module.css"; // plasmic-import: 27AmrZX5CQt7s65ri42ThG/projectcss
 import sty from "./PlasmicHomepage.module.css"; // plasmic-import: 59Xc1YXMNYI0/css
 
+import SearchsvgIcon from "./icons/PlasmicIcon__Searchsvg"; // plasmic-import: NF3BZmpKrCTY/icon
 import ChecksvgIcon from "./icons/PlasmicIcon__Checksvg"; // plasmic-import: SWoSR0EN4kPs/icon
 import IconIcon from "./icons/PlasmicIcon__Icon"; // plasmic-import: dxGLVINTS3lJ/icon
 import imagespng1TwSSTzja5A from "./images/imagespng.png"; // plasmic-import: 1twS_sTZJA5a/picture
@@ -58,10 +60,9 @@ export type PlasmicHomepage__OverridesType = {
   root?: p.Flex<"div">;
   section?: p.Flex<"section">;
   profileImage?: p.Flex<typeof p.PlasmicImg>;
-  username?: p.Flex<"div">;
-  password?: p.Flex<"div">;
+  username?: p.Flex<typeof TextInput>;
+  password?: p.Flex<typeof TextInput>;
   button?: p.Flex<typeof Button>;
-  text?: p.Flex<"div">;
 };
 
 export interface DefaultHomepageProps {
@@ -90,6 +91,30 @@ function PlasmicHomepage__RenderFunc(props: {
   const $refs = refsRef.current;
 
   const currentUser = p.useCurrentUser?.() || {};
+
+  const stateSpecs: Parameters<typeof p.useDollarState>[0] = React.useMemo(
+    () => [
+      {
+        path: "username.value",
+        type: "private",
+        variableType: "text",
+        initFunc: ({ $props, $state, $queries, $ctx }) => ""
+      },
+      {
+        path: "password.value",
+        type: "private",
+        variableType: "text",
+        initFunc: ({ $props, $state, $queries, $ctx }) => ""
+      }
+    ],
+    [$props, $ctx, $refs]
+  );
+  const $state = p.useDollarState(stateSpecs, {
+    $props,
+    $ctx,
+    $queries: {},
+    $refs
+  });
 
   return (
     <React.Fragment>
@@ -134,39 +159,54 @@ function PlasmicHomepage__RenderFunc(props: {
             />
 
             <div
+              className={classNames(
+                projectcss.all,
+                projectcss.__wab_text,
+                sty.text__pj9Gc
+              )}
+            >
+              {""}
+            </div>
+            <TextInput
               data-plasmic-name={"username"}
               data-plasmic-override={overrides.username}
-              className={classNames(
-                projectcss.all,
-                projectcss.__wab_text,
-                sty.username
-              )}
-            >
-              {"Username"}
-            </div>
-            <div
+              className={classNames("__wab_instance", sty.username)}
+              onChange={(...eventArgs) => {
+                p.generateStateOnChangeProp($state, ["username", "value"])(
+                  (e => e.target?.value).apply(null, eventArgs)
+                );
+              }}
+              placeholder={"Username"}
+              value={
+                p.generateStateValueProp($state, ["username", "value"]) ?? ""
+              }
+            />
+
+            <TextInput
               data-plasmic-name={"password"}
               data-plasmic-override={overrides.password}
-              className={classNames(
-                projectcss.all,
-                projectcss.__wab_text,
-                sty.password
-              )}
-            >
-              {"Password"}
-            </div>
+              className={classNames("__wab_instance", sty.password)}
+              onChange={(...eventArgs) => {
+                p.generateStateOnChangeProp($state, ["password", "value"])(
+                  (e => e.target?.value).apply(null, eventArgs)
+                );
+              }}
+              placeholder={"Password"}
+              value={
+                p.generateStateValueProp($state, ["password", "value"]) ?? ""
+              }
+            />
+
             <Button
               data-plasmic-name={"button"}
               data-plasmic-override={overrides.button}
               className={classNames("__wab_instance", sty.button)}
             >
               <div
-                data-plasmic-name={"text"}
-                data-plasmic-override={overrides.text}
                 className={classNames(
                   projectcss.all,
                   projectcss.__wab_text,
-                  sty.text
+                  sty.text__j15ZJ
                 )}
               >
                 {"Login"}
@@ -180,28 +220,12 @@ function PlasmicHomepage__RenderFunc(props: {
 }
 
 const PlasmicDescendants = {
-  root: [
-    "root",
-    "section",
-    "profileImage",
-    "username",
-    "password",
-    "button",
-    "text"
-  ],
-  section: [
-    "section",
-    "profileImage",
-    "username",
-    "password",
-    "button",
-    "text"
-  ],
+  root: ["root", "section", "profileImage", "username", "password", "button"],
+  section: ["section", "profileImage", "username", "password", "button"],
   profileImage: ["profileImage"],
   username: ["username"],
   password: ["password"],
-  button: ["button", "text"],
-  text: ["text"]
+  button: ["button"]
 } as const;
 type NodeNameType = keyof typeof PlasmicDescendants;
 type DescendantsType<T extends NodeNameType> =
@@ -210,10 +234,9 @@ type NodeDefaultElementType = {
   root: "div";
   section: "section";
   profileImage: typeof p.PlasmicImg;
-  username: "div";
-  password: "div";
+  username: typeof TextInput;
+  password: typeof TextInput;
   button: typeof Button;
-  text: "div";
 };
 
 type ReservedPropsType = "variants" | "args" | "overrides";
@@ -281,7 +304,6 @@ export const PlasmicHomepage = Object.assign(
     username: makeNodeComponent("username"),
     password: makeNodeComponent("password"),
     button: makeNodeComponent("button"),
-    text: makeNodeComponent("text"),
 
     // Metadata about props expected for PlasmicHomepage
     internalVariantProps: PlasmicHomepage__VariantProps,
